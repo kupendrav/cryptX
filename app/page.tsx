@@ -13,6 +13,7 @@ export default function Page() {
   const [state, setState] = useState<State | null>(null);
   const [modal, setModal] = useState<ModalT>(null);
   const [guess, setGuess] = useState("");
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   async function api(path: string, body: any) {
     const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -95,20 +96,15 @@ export default function Page() {
   if (!sessionId) return;
 
   // Fire the request and rely on server socket modal + state to update UI.
-  await api("/api/game/submit-guess", { sessionId, text: guess }).catch(console.error);
-  // setModal({ title: "Checking…", body: "Validating your guess.", kind: "info" });
+  await api("/api/game/submit-guess", { sessionId, text: guess, walletAddress }).catch(console.error);
 
   setGuess("");
 }
 
 
   async function hint() {
-    
     if (!sessionId) return;
-
-    const used = (state ? (HINTS_MAX - (state.hints ?? 0)) : 0) + 1;
-    const of = HINTS_MAX;
-    setModal({ title: "Hint", body: `Hint no. ${used} of ${of}`, kind: "info" });
+    // Server will send the hint modal with the actual hint text
     await api("/api/game/reveal-hint", { sessionId });
   }
 
@@ -125,9 +121,6 @@ export default function Page() {
     // 6) Give up popup
     setModal({ title: "Better luck next time", body: "You gave up.", kind: "warn" });
   }
-
-  // Constants used for hint popup math
-  const HINTS_MAX = 2;
 
   async function claimReward(address: string, level: number) {
   try {
@@ -175,9 +168,9 @@ async function ensureTenderlyChain(targetChainIdDec: number, rpcUrl: string, nam
 
       <div className="relative z-10 h-full grid grid-rows-[auto_1fr] p-4 md:p-6">
         {/* Header row: left button highlighted in white, title centered with subtitle below */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <button
-            className="btn-base px-4 py-2 rounded-xl bg-white text-black hover:bg-white/90 active:scale-[0.98]"
+            className="btn-base px-6 py-3 rounded-xl bg-white text-black hover:bg-white/90 active:scale-[0.98]"
             onClick={openHelp}
           >
             How to play?
@@ -185,20 +178,20 @@ async function ensureTenderlyChain(targetChainIdDec: number, rpcUrl: string, nam
 
           {/* Centered title/subtitle stack */}
           <div className="absolute left-1/2 -translate-x-1/2 text-center">
-            <h1 className="m-0 text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow text-white">CryptX</h1>
-            <div className="text-slate-200 text-sm md:text-base mt-3">
+            <h1 className="m-0 text-6xl md:text-7xl font-extrabold tracking-tight drop-shadow text-white">CryptX</h1>
+            <div className="text-slate-200 text-xl md:text-2xl mt-4 font-medium">
               Decrypt clues, guess the secret, beat the clock.
             </div>
           </div>
 
           {/* Right spacer to keep layout balanced */}
-          <div className="w-[130px]" />
+          <div className="w-[180px]" />
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4 md:gap-6 mt-6 overflow-hidden">
-          <section className="flex flex-col gap-4 md:gap-6 overflow-hidden">
-            <div className="card-glass px-5 py-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-slate-200/90 text-sm">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_420px] gap-6 md:gap-8 mt-6 overflow-hidden">
+          <section className="flex flex-col gap-6 md:gap-8 overflow-hidden">
+            <div className="card-glass px-8 py-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-slate-200/90 text-xl font-semibold">
                 <div>Score: {state?.score ?? 0}</div>
                 <div>Time: {state?.timeLeft ?? 0}s</div>
                 <div>Attempts: {state?.attempts ?? 0}</div>
@@ -206,27 +199,27 @@ async function ensureTenderlyChain(targetChainIdDec: number, rpcUrl: string, nam
               </div>
             </div>
 
-            <div className="card-glass px-15 py-15">
-              <div className="text-white font-extrabold text-m">Encrypted clue:</div>
-              <div className="rounded-2xl border border-yellow-300 bg-black/40 font-mono text-xs break-words px-4 py-3 mt-3">
+            <div className="card-glass px-8 py-6">
+              <div className="text-white font-extrabold text-2xl mb-4">Encrypted clue:</div>
+              <div className="rounded-2xl border border-yellow-300 bg-black/40 font-mono text-lg break-words px-6 py-5 mt-3">
                 {state?.cipher ?? ""}
               </div>
-              <div className="flex gap-3 flex-wrap mt-4">
+              <div className="flex gap-4 flex-wrap mt-6">
                 <button className="btn-ghost" onClick={copy}>Copy Cipher ⧉</button>
                 <button className="btn-cyan" onClick={newEncryptedHint}>New Hint ⟲</button>
               </div>
             </div>
 
-            <div className="card-glass px-15 py-15">
-              <div className="text-white font-extrabold text-m">Enter guess or try to decrypt:</div>
+            <div className="card-glass px-8 py-6">
+              <div className="text-white font-extrabold text-2xl mb-4">Enter guess or try to decrypt:</div>
               <input
-                className="input-glass rounded-2xl border border-yellow-300 bg-black/40 font-mono  px-10 py-5 mt-3"
+                className="input-glass w-full rounded-2xl border border-yellow-300 bg-black/40 font-mono px-6 py-4 mt-3"
                 value={guess}
                 onChange={(e) => setGuess(e.target.value)}
                 onKeyDown={onEnterSubmit}
                 placeholder="Type your guess and press Enter"
               />
-              <div className="flex gap-8 flex-wrap items-center mt-4">
+              <div className="flex gap-6 flex-wrap items-center mt-6">
                 <button className="btn-primary-lg" onClick={submit}>Submit ⏎</button>
                 <button className="btn-amber" onClick={hint}>Hint 💡</button>
                 <button className="btn-cyan" onClick={newRound}>New Round ⟳</button>
@@ -236,10 +229,10 @@ async function ensureTenderlyChain(targetChainIdDec: number, rpcUrl: string, nam
             </div>
           </section>
 
-          <aside className="card-glass px-5 py-5 h-fit rounded-2xl border border-yellow-300 bg-black/50 font-mono">
-            <div className="text-lg font-bold mb-3">Level: {state?.level ?? 1}</div>
-            <div className="text-slate-300 text-sm mb-3">Connect a browser wallet:</div>
-            <Wallet rewardsEth={state?.rewardsEth ?? 0} />
+          <aside className="card-glass px-8 py-6 h-fit rounded-2xl border border-yellow-300 bg-black/50 font-mono">
+            <div className="text-2xl font-bold mb-4">Level: {state?.level ?? 1}</div>
+            <div className="text-slate-300 text-lg mb-4">Connect a browser wallet:</div>
+            <Wallet rewardsEth={state?.rewardsEth ?? 0} onAddressChange={setWalletAddress} />
             
           </aside>
         </div>

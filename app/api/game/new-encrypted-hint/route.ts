@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
     attempts: s.attempts,
     hints: s.hints,
     cipher: s.cipher,
+    rewardsEth: s.rewardsEth,
   });
 
   return Response.json({ ok: true });

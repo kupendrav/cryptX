@@ -16,7 +16,11 @@ export async function POST(req: NextRequest) {
   s.hints -= 1;
 
   // Show the actual plaintext hint from server
-  await emit(sessionId, "modal", { title: "Hint", body: `Hint: ${s.hint}`, kind: "info" });
+  await emit(sessionId, "modal", { 
+    title: "💡 Hint", 
+    body: s.hint, 
+    kind: "info" 
+  });
 
   // Also push updated counters so UI reflects remaining hints
   await emit(sessionId, "state", {
@@ -26,6 +30,7 @@ export async function POST(req: NextRequest) {
     attempts: s.attempts,
     hints: s.hints,
     cipher: s.cipher,
+    rewardsEth: s.rewardsEth,
   });
 
   return Response.json({ ok: true });

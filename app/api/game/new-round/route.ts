@@ -10,6 +10,7 @@ function ensureState(sessionId: string): RoundState {
       key: null, secret: "", hint: "", cipher: "",
       attempts: ATTEMPTS, hints: HINTS, timeLeft: ROUND_TIME,
       score: 0, level: 1, running: false, timer: null,
+      rewardsEth: 0, lastRewardThreshold: 0,
     };
     sessions.set(sessionId, s);
   }
@@ -17,7 +18,15 @@ function ensureState(sessionId: string): RoundState {
 }
 
 function statePayload(s: RoundState) {
-  return { score: s.score, level: s.level, timeLeft: s.timeLeft, attempts: s.attempts, hints: s.hints, cipher: s.cipher };
+  return { 
+    score: s.score, 
+    level: s.level, 
+    timeLeft: s.timeLeft, 
+    attempts: s.attempts, 
+    hints: s.hints, 
+    cipher: s.cipher,
+    rewardsEth: s.rewardsEth 
+  };
 }
 
 export async function POST(req: NextRequest) {

@@ -11,6 +11,8 @@ export type RoundState = {
   running: boolean;
   timer?: NodeJS.Timeout | null;
   rewardsEth: number; // virtual ETH earned from points/levels
+  lastRewardThreshold: number; // track last score threshold for rewards
+  connectedAddress?: string; // wallet address if connected
   
 };
 
