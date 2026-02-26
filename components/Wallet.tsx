@@ -51,18 +51,19 @@ export function Wallet({ rewardsEth = 0, onAddressChange }: Props) {
 
   return (
     <div className="space-y-3">
-      <div className="text-lg text-slate-300">Wallet: {address ? `${address.slice(0,6)}...${address.slice(-4)}` : "Not connected"}</div>
+      <div className="text-sm sm:text-base text-slate-300">Wallet: {address ? `${address.slice(0,6)}...${address.slice(-4)}` : "Not connected"}</div>
       {address && (
-        <div className="text-lg text-slate-300">
-          Chain: {chain?.name ?? "Unknown"} • Balance: {balance} {chain?.symbol ?? "ETH"}{usdStr ? ` (~$${usdStr})` : ""}
+        <div className="text-sm sm:text-base text-slate-300">
+          Chain: {chain?.name ?? "Unknown"} • Balance: {Number(balance).toFixed(4)} {chain?.symbol ?? "ETH"}{usdStr ? ` (~$${usdStr})` : ""}
         </div>
       )}
-      <button className="btn-green w-full text-lg" onClick={connect}>{address ? "Connected" : "Connect Wallet"}</button>
+      <button className="btn-green w-full text-sm sm:text-base px-4 py-2 rounded-xl" onClick={connect}>{address ? "Connected" : "Connect Wallet"}</button>
 
-      <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
-        <div className="text-slate-200 font-semibold text-xl">Virtual rewards</div>
-        <div className="text-slate-300 text-lg">100 points = 1 ETH (virtual)</div>
-        <div className="mt-2 text-2xl font-bold">{rewardsEth} ETH</div>
+      <div className="mt-3 rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4">
+        <div className="text-slate-200 font-semibold text-base sm:text-lg">Virtual rewards</div>
+        <div className="text-slate-300 text-xs sm:text-sm">100 points = 1 ETH (virtual, not real)</div>
+        <div className="mt-1 text-xl sm:text-2xl font-bold">{rewardsEth} ETH</div>
+        <div className="text-rose-400 text-[10px] sm:text-xs mt-1 italic">For fun only — no real value</div>
       </div>
     </div>
   );

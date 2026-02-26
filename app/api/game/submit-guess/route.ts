@@ -46,7 +46,6 @@ export async function POST(req: NextRequest) {
 
   if (correct) {
     const timeBonus = s.timeLeft * SCORE_TIME_BONUS;
-    const oldScore = s.score;
     s.score += SCORE_CORRECT + timeBonus;
     s.level += 1;
     s.running = false;
