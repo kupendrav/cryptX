@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:socket": "tsx server/socket.ts",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint"

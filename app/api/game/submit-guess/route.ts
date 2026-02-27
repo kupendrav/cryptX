@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
     s.score += SCORE_CORRECT + timeBonus;
     s.level += 1;
     s.running = false;
+    if (s.timer) { clearInterval(s.timer); s.timer = null; }
 
     // Calculate virtual ETH rewards (1 ETH per 100 points)
     const newThreshold = Math.floor(s.score / 100);
@@ -95,6 +96,7 @@ export async function POST(req: NextRequest) {
     s.attempts -= 1;
     if (s.attempts <= 0) {
       s.running = false;
+      if (s.timer) { clearInterval(s.timer); s.timer = null; }
       await emit(sessionId, "modal", {
         title: "Out of attempts",
         body: `Out of attempts. Secret was: ${s.secret}`,

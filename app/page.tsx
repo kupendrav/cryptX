@@ -42,15 +42,13 @@ export default function Page() {
     if (!sessionId) return;
     const socket = getSocket();
 
-    const start = async () => {
+    const start = () => {
       if (!socket.connected) {
-        socket.once("connect", async () => {
+        socket.once("connect", () => {
           socket.emit("join", { sessionId });
-          await api("/api/game/new-round", { sessionId });
         });
       } else {
         socket.emit("join", { sessionId });
-        await api("/api/game/new-round", { sessionId });
       }
     };
 
@@ -144,7 +142,6 @@ export default function Page() {
   async function giveUp() {
     if (!sessionId) return;
     await api("/api/game/give-up", { sessionId });
-    setModal({ title: "Better luck next time", body: "You gave up.", kind: "warn" });
   }
 
 
@@ -209,36 +206,50 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Encrypted clue */}
-            <div className="card-glass rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
-              <div className="text-white font-extrabold text-lg sm:text-xl mb-2">Encrypted clue:</div>
-              <div className="rounded-xl border border-yellow-300 bg-black/40 font-mono text-xs sm:text-sm break-all px-3 sm:px-5 py-3 sm:py-4">
-                {state?.cipher ?? ""}
+            {!state ? (
+              <div className="card-glass rounded-2xl px-4 sm:px-6 py-8 sm:py-12 flex flex-col items-center justify-center gap-4">
+                <div className="text-white font-extrabold text-xl sm:text-2xl">Ready to play?</div>
+                <div className="text-slate-300 text-sm sm:text-base text-center">
+                  Decrypt clues, guess the secret cryptography term, and beat the clock!
+                </div>
+                <button className="btn-primary-lg text-base sm:text-lg px-6 sm:px-8 py-2.5 sm:py-3 mt-2" onClick={newRound}>
+                  Start Game 🚀
+                </button>
               </div>
-              <div className="flex gap-2 sm:gap-3 flex-wrap mt-3 sm:mt-4">
-                <button className="btn-ghost text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2" onClick={copy}>Copy ⧉</button>
-                <button className="btn-cyan text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2" onClick={newEncryptedHint}>New Hint ⟲</button>
-              </div>
-            </div>
+            ) : (
+              <>
+                {/* Encrypted clue */}
+                <div className="card-glass rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
+                  <div className="text-white font-extrabold text-lg sm:text-xl mb-2">Encrypted clue:</div>
+                  <div className="rounded-xl border border-yellow-300 bg-black/40 font-mono text-xs sm:text-sm break-all px-3 sm:px-5 py-3 sm:py-4">
+                    {state.cipher}
+                  </div>
+                  <div className="flex gap-2 sm:gap-3 flex-wrap mt-3 sm:mt-4">
+                    <button className="btn-ghost text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2" onClick={copy}>Copy ⧉</button>
+                    <button className="btn-cyan text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2" onClick={newEncryptedHint}>New Hint ⟲</button>
+                  </div>
+                </div>
 
-            {/* Guess box */}
-            <div className="card-glass rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
-              <div className="text-white font-extrabold text-lg sm:text-xl mb-2">Enter guess or try to decrypt:</div>
-              <input
-                className="w-full rounded-xl border border-yellow-300 bg-black/40 text-white font-mono text-sm sm:text-base px-3 sm:px-5 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-yellow-400/60 placeholder-slate-500"
-                value={guess}
-                onChange={(e) => setGuess(e.target.value)}
-                onKeyDown={onEnterSubmit}
-                placeholder="Type your guess and press Enter"
-              />
-              <div className="flex gap-2 sm:gap-3 flex-wrap items-center mt-3 sm:mt-4">
-                <button className="btn-primary-lg text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-2.5" onClick={submit}>Submit ⏎</button>
-                <button className="btn-amber text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5" onClick={hint}>Hint 💡</button>
-                <button className="btn-cyan text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5" onClick={newRound}>New Round ⟳</button>
-                <div className="flex-1" />
-                <button className="btn-rose text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5" onClick={giveUp}>Give Up ✖</button>
-              </div>
-            </div>
+                {/* Guess box */}
+                <div className="card-glass rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
+                  <div className="text-white font-extrabold text-lg sm:text-xl mb-2">Enter guess or try to decrypt:</div>
+                  <input
+                    className="w-full rounded-xl border border-yellow-300 bg-black/40 text-white font-mono text-sm sm:text-base px-3 sm:px-5 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-yellow-400/60 placeholder-slate-500"
+                    value={guess}
+                    onChange={(e) => setGuess(e.target.value)}
+                    onKeyDown={onEnterSubmit}
+                    placeholder="Type your guess and press Enter"
+                  />
+                  <div className="flex gap-2 sm:gap-3 flex-wrap items-center mt-3 sm:mt-4">
+                    <button className="btn-primary-lg text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-2.5" onClick={submit}>Submit ⏎</button>
+                    <button className="btn-amber text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5" onClick={hint}>Hint 💡</button>
+                    <button className="btn-cyan text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5" onClick={newRound}>New Round ⟳</button>
+                    <div className="flex-1" />
+                    <button className="btn-rose text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5" onClick={giveUp}>Give Up ✖</button>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Leaderboard */}
             <div className="card-glass rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
