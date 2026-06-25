@@ -7,9 +7,11 @@ import bodyParser from "body-parser";
 const app = express();
 app.use(bodyParser.json());
 
+const allowedOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  cors: { origin: "http://localhost:3000", methods: ["GET","POST"] },
+  cors: { origin: allowedOrigin, methods: ["GET", "POST"] },
   transports: ["websocket", "polling"],
 });
 
